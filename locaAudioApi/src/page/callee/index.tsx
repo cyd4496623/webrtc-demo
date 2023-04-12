@@ -22,6 +22,7 @@ const Callee = () => {
 
     socket.current.on('connect', () => {
       console.log('已连接');
+      addWSCallback();
     });
   }, []);
 
@@ -63,14 +64,13 @@ const Callee = () => {
       audio: true,
       video: true,
     });
-    // 把流添加进pc
-    localStream.getAudioTracks().forEach((track) => {
-      localRtcPc.current?.addTrack(track);
-    });
     // 本地播放流数据
     localVideoRef.current!.srcObject = localStream;
-    // 添加Ws 回调
-    addWSCallback();
+    // 将本地视频流的轨道添加到RTCPeerConnection中
+    localStream.getTracks().forEach((track) => {
+      localRtcPc.current!.addTrack(track, localStream);
+    });
+
     // 添加pc 回调
     onPcEvent();
   };
@@ -80,24 +80,12 @@ const Callee = () => {
     if (!pc) return;
     // 接收到远端信令的回调
     pc.ontrack = function (event) {
-      const video = remoteVideoRef.current;
-      console.log('接收者的ontrack事件', event);
-      const track = event.track;
-      if (!video) return;
-      let stream = video.srcObject;
-      if (stream) {
-        stream.addTrack(track);
-      } else {
-        let newStream = new MediaStream();
-        newStream.addTrack(track);
-        video.srcObject = newStream;
-        video.muted = true;
-      }
+      // 播放远端的流
+      remoteVideoRef.current!.srcObject = event.streams[0];
     };
     // 生成ice回调
     pc.onicecandidate = function (event) {
       if (event.candidate) {
-        console.log('onicecandidate事件');
         socket.current!.emit('candidate', {
           targetUid,
           userId,
@@ -115,13 +103,14 @@ const Callee = () => {
       <video
         ref={localVideoRef}
         autoPlay
-        muted
+        // muted
         style={{ width: '50%', height: 'auto' }}
       />
 
       <video
         ref={remoteVideoRef}
         autoPlay
+        // muted
         style={{ width: '50%', height: 'auto' }}
       />
     </div>

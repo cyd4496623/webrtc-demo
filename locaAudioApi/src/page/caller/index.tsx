@@ -22,6 +22,8 @@ const Caller = () => {
 
     socket.current.on('connect', () => {
       console.log('已连接');
+      // 添加Ws 回调
+      addWSCallback();
     });
   }, []);
 
@@ -30,13 +32,6 @@ const Caller = () => {
     // 发送者 只监听回复就好了
     socket.current!.on('msg', async (res) => {
       console.log('res', res);
-
-      if (res.type === 'candidate') {
-        try {
-          const candidate = res.data.candidate;
-          await localRtcPc.current?.addIceCandidate(candidate);
-        } catch (error) {}
-      }
       if (res.type === 'answer') {
         // 接受到链接请求 设置远程
         await localRtcPc.current?.setRemoteDescription(res.data.answer);
@@ -53,13 +48,12 @@ const Caller = () => {
       video: true,
     });
     // 把流添加进pc
-    localStream.getAudioTracks().forEach((track) => {
-      localRtcPc.current?.addTrack(track);
+    localStream.getTracks().forEach((track) => {
+      localRtcPc.current?.addTrack(track, localStream);
     });
     // 本地播放流数据
     localVideoRef.current!.srcObject = localStream;
-    // 添加Ws 回调
-    addWSCallback();
+
     // 添加pc 回调
     onPcEvent();
   };
@@ -69,31 +63,12 @@ const Caller = () => {
     if (!pc) return;
     // 接收到远端信令的回调
     pc.ontrack = function (event) {
-      const video = remoteVideoRef.current;
-      console.log('发送者的ontrack事件', event);
-      const track = event.track;
-      if (!video) return;
-
-      let stream = video.srcObject;
-      if (stream) {
-        stream.addTrack(track);
-      } else {
-        console.log('track', track);
-        let newStream = new MediaStream();
-        newStream.addTrack(track);
-        video.srcObject = newStream;
-        console.log(
-          'remoteVideoRef.current',
-          remoteVideoRef.current,
-          remoteVideoRef.current.srcObject,
-          localVideoRef.current
-        );
-      }
+      // 播放远端的流
+      remoteVideoRef.current!.srcObject = event.streams[0];
     };
     // 生成ice回调
     pc.onicecandidate = function (event) {
       if (event.candidate) {
-        console.log('onicecandidats事件');
         socket.current!.emit('candidate', {
           targetUid,
           userId,
@@ -129,6 +104,7 @@ const Caller = () => {
       <video
         ref={remoteVideoRef}
         autoPlay
+        muted
         style={{ width: '50%', height: 'auto' }}
       />
     </div>
