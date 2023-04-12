@@ -98,7 +98,7 @@ const Callee = () => {
   return (
     <div>
       <div>
-        <Button onClick={init}>初始化，开始摄像头</Button>
+        <Button onClick={init}>初始化开始摄像头</Button>
       </div>
       <video
         ref={localVideoRef}
