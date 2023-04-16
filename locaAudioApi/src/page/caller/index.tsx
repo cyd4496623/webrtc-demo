@@ -63,8 +63,9 @@ const Caller = () => {
     if (!pc) return;
     // 接收到远端信令的回调
     pc.ontrack = function (event) {
-      // 播放远端的流
-      remoteVideoRef.current!.srcObject = event.streams[0];
+      if (!remoteVideoRef.current) return;
+
+      remoteVideoRef.current.srcObject = event.streams[0];
     };
     // 生成ice回调
     pc.onicecandidate = function (event) {

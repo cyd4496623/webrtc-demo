@@ -3,6 +3,7 @@ import PTP from '../App';
 import PTP2 from '../App';
 import Caller from '../page/caller';
 import Callee from '../page/callee';
+import Back from '../page/imaginaryBck';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: '/callee',
     element: <Callee />,
+  },
+  {
+    path: '/back',
+    element: <Back />,
   },
 ]);
 
