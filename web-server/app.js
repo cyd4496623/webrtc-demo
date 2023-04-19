@@ -115,7 +115,6 @@ async function onListener(socket) {
   });
 
   socket.on('roomUserList', async (data) => {
-    // console.log("roomUserList msg",data)
     socket.emit('roomUserList', await getRoomOnlyUserList(data['roomId']));
   });
   socket.on('call', (data) => {
