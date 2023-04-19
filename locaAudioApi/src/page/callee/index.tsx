@@ -4,6 +4,7 @@ import { Socket } from 'socket.io-client';
 import { config, roomId } from '../../constant/p2p';
 import { createSocket } from '../../core/Socket';
 import { getLocalUserMedia } from '../../utils';
+import Danmaku from 'danmaku';
 
 const Callee = () => {
   const targetUid = 'yunda';
@@ -15,7 +16,11 @@ const Callee = () => {
   /** pc实例 */
   const localRtcPc = useRef<RTCPeerConnection>();
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   const socket = useRef<Socket>();
+
+  const danmaku = useRef<Danmaku>();
 
   useEffect(() => {
     socket.current = createSocket({ roomId, userId });
@@ -73,6 +78,8 @@ const Callee = () => {
 
     // 添加pc 回调
     onPcEvent();
+    // 初始化弹幕
+    initDanmu();
   };
 
   const onPcEvent = () => {
@@ -93,6 +100,32 @@ const Callee = () => {
         });
       }
     };
+
+    pc.ondatachannel = function (ev) {
+      console.log('用户：' + targetUid + ' 数据通道创建成功');
+      ev.channel.onopen = function () {
+        console.log('用户：' + targetUid + ' 数据通道打开');
+      };
+      ev.channel.onmessage = function (data) {
+        console.log('用户：' + targetUid + ' 数据通道消息', data.data);
+        // 弹幕上屏幕
+        danmaku.current?.emit({
+          text: data.data,
+          style: { fontSize: '20px', color: '#ff5500' },
+        });
+      };
+      ev.channel.onclose = function () {
+        console.log('用户：' + targetUid + ' 数据通道关闭');
+      };
+    };
+  };
+
+  /** 初始化弹幕 */
+  const initDanmu = () => {
+    danmaku.current = new Danmaku({
+      container: wrapperRef.current!,
+      speed: 30,
+    });
   };
 
   return (
@@ -100,19 +133,21 @@ const Callee = () => {
       <div>
         <Button onClick={init}>初始化开始摄像头</Button>
       </div>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        // muted
-        style={{ width: '50%', height: 'auto' }}
-      />
+      <div ref={wrapperRef}>
+        <video
+          ref={localVideoRef}
+          autoPlay
+          // muted
+          style={{ width: '50%', height: 'auto' }}
+        />
 
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        // muted
-        style={{ width: '50%', height: 'auto' }}
-      />
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          // muted
+          style={{ width: '50%', height: 'auto' }}
+        />
+      </div>
     </div>
   );
 };

@@ -1,9 +1,10 @@
-import { Button } from 'antd';
-import { useEffect, useRef } from 'react';
+import { Button, Input } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { config, roomId } from '../../constant/p2p';
 import { createSocket } from '../../core/Socket';
 import { getLocalUserMedia } from '../../utils';
+import Danmaku from 'danmaku';
 
 const Caller = () => {
   const userId = 'yunda';
@@ -15,7 +16,16 @@ const Caller = () => {
   /** pc实例 */
   const localRtcPc = useRef<RTCPeerConnection>();
 
+  /** 消息通道 */
+  const channel = useRef<RTCDataChannel>();
+
   const socket = useRef<Socket>();
+
+  const [value, setValue] = useState('');
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const danmaku = useRef<Danmaku>();
 
   useEffect(() => {
     socket.current = createSocket({ roomId, userId });
@@ -47,6 +57,10 @@ const Caller = () => {
       audio: true,
       video: true,
     });
+    //NOTE: 主播端创建数据通道
+    channel.current = await localRtcPc.current.createDataChannel(
+      userId + '-' + targetUid
+    );
     // 把流添加进pc
     localStream.getTracks().forEach((track) => {
       localRtcPc.current?.addTrack(track, localStream);
@@ -56,6 +70,8 @@ const Caller = () => {
 
     // 添加pc 回调
     onPcEvent();
+    // 初始化弹幕
+    initDanmu();
   };
 
   const onPcEvent = () => {
@@ -89,25 +105,52 @@ const Caller = () => {
     socket.current!.emit('offer', params);
   };
 
+  const handleChange = (e: any) => {
+    setValue(e.target.value);
+  };
+
+  const send = () => {
+    channel.current?.send(value);
+
+    danmaku.current?.emit({
+      text: value,
+      style: { fontSize: '20px', color: '#ff5500' },
+    });
+  };
+
+  /** 初始化弹幕 */
+  const initDanmu = () => {
+    danmaku.current = new Danmaku({
+      container: wrapperRef.current!,
+      speed: 30,
+    });
+  };
+
   return (
     <div>
       <div>
         <Button onClick={init}>初始化，开始摄像头</Button>
         <Button onClick={create}>创新信令，并发送</Button>
       </div>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        muted
-        style={{ width: '50%', height: 'auto' }}
-      />
+      <div ref={wrapperRef}>
+        <video
+          ref={localVideoRef}
+          autoPlay
+          muted
+          style={{ width: '50%', height: 'auto' }}
+        />
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          muted
+          style={{ width: '50%', height: 'auto' }}
+        />
+      </div>
 
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        muted
-        style={{ width: '50%', height: 'auto' }}
-      />
+      <div>
+        <Input value={value} onChange={handleChange} />
+        <Button onClick={send}>发送消息</Button>
+      </div>
     </div>
   );
 };
