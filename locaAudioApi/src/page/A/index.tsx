@@ -17,6 +17,8 @@ const Caller = () => {
   const [userList, setUserList] = useState<string[]>([]);
   const otherUser = userList.filter((user) => user !== userId);
 
+  const stream = useRef<MediaStream>();
+
   useEffect(() => {
     socket.current = createSocket({ roomId, userId });
 
@@ -67,13 +69,13 @@ const Caller = () => {
         await pc?.setRemoteDescription(answer);
       }
 
-      // if (res.type === 'join') {
-      //   setUserList((val) => [...new Set([...val, user])]);
-      // }
-      // if (res.type === 'leave') {
-      //   setUserList((val) => val.filter((item) => item !== user));
-      //   rtcMpc.current.delete(user);
-      // }
+      if (res.type === 'join') {
+        setUserList((val) => [...new Set([...val, user])]);
+      }
+      if (res.type === 'leave') {
+        setUserList((val) => val.filter((item) => item !== user));
+        rtcMpc.current.delete(user);
+      }
     });
 
     socket.current!.on('roomUserList', async (res) => {
@@ -86,6 +88,7 @@ const Caller = () => {
     // 多少个用户就生成多少 RTCPeerConnection对象
     console.log('userList', userList.length);
     userList.forEach((userId) => {
+      if (rtcMpc.current.get(userId)) return;
       const localRtcPc = new RTCPeerConnection(config);
 
       rtcMpc.current.set(userId, localRtcPc);
@@ -150,14 +153,46 @@ const Caller = () => {
       });
     }
 
+    stream.current = localStream;
+
     // 本地播放流数据
     localVideoRef.current!.srcObject = localStream;
   };
+
+  const closeCamera = () => {
+    stream.current?.getTracks().forEach((trick) => {
+      trick.stop();
+    });
+  };
+
+  const stopVideo = () => {
+    for (const userItem of rtcMpc.current) {
+      const [targetUid, pc] = userItem;
+      if (targetUid === userId) continue;
+      const senders = pc.getSenders();
+      const send = senders.find((s) => s.track!.kind === 'video');
+      send!.track!.enabled = false;
+    }
+  };
+
+  const openVideo = () => {
+    for (const userItem of rtcMpc.current) {
+      const [targetUid, pc] = userItem;
+      if (targetUid === userId) continue;
+      const senders = pc.getSenders();
+      const send = senders.find((s) => s.track!.kind === 'video');
+      send!.track!.enabled = true;
+    }
+  };
+
   return (
     <div>
       <div>
-        <Button onClick={create}>链接</Button>
         <Button onClick={openCamera}>开启摄像头</Button>
+        <Button onClick={create}>链接</Button>
+        <Button onClick={closeCamera}>关闭摄像头</Button>
+        <Button onClick={stopVideo}>暂停视频</Button>
+        <Button onClick={openVideo}>开启视频</Button>
       </div>
       <div>
         <video

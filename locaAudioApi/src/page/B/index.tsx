@@ -72,13 +72,13 @@ const Callee = () => {
         await pc?.setRemoteDescription(answer);
       }
 
-      // if (res.type === 'join') {
-      //   setUserList((val) => [...new Set([...val, user])]);
-      // }
-      // if (res.type === 'leave') {
-      //   setUserList((val) => val.filter((item) => item !== user));
-      //   rtcMpc.current.delete(user);
-      // }
+      if (res.type === 'join') {
+        setUserList((val) => [...new Set([...val, user])]);
+      }
+      if (res.type === 'leave') {
+        setUserList((val) => val.filter((item) => item !== user));
+        rtcMpc.current.delete(user);
+      }
     });
   };
 
@@ -86,6 +86,7 @@ const Callee = () => {
     console.log('userList', userList.length);
     // 多少个用户就生成多少 RTCPeerConnection对象
     userList.forEach((userId) => {
+      if (rtcMpc.current.get(userId)) return;
       const localRtcPc = new RTCPeerConnection(config);
 
       rtcMpc.current.set(userId, localRtcPc);
@@ -155,8 +156,8 @@ const Callee = () => {
   return (
     <div>
       <div>
-        <Button onClick={create}>链接</Button>
         <Button onClick={openCamera}>开启摄像头</Button>
+        <Button onClick={create}>链接</Button>
       </div>
       <div>
         <video
