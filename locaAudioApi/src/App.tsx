@@ -109,6 +109,7 @@ function App(props: Props) {
       if (!video) return;
       let stream = video.srcObject;
       if (stream) {
+        // @ts-ignore
         stream.addTrack(track);
       } else {
         let newStream = new MediaStream();
