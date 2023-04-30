@@ -8,9 +8,14 @@ import C from '../page/C';
 import Back from '../page/imaginaryBck';
 import A from '../page/A';
 import B from '../page/B';
+import Home from '../page/Home';
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <Home />,
+  },
+  {
+    path: '/ptp1',
     element: <PTP isCaller userId="1001" roomId="1" />,
   },
   {
