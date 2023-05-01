@@ -1,25 +1,30 @@
 const { hSet, hGetAll, hDel } = require('./redis');
 const { getMsg, getParams } = require('./common');
+const fs = require('fs');
+const https = require('https');
+// var fs = require('fs');
+// var express = require('express');
+const privateKey = fs.readFileSync('/etc/nginx/ssl/nginx.key', 'utf8');
+const certificate = fs.readFileSync('/etc/nginx/ssl/nginx.crt', 'utf8');
 
-const http = require('http');
-var fs = require('fs');
-var express = require('express');
-var app = express();
+const credentials = { key: privateKey, cert: certificate };
 
-//http server
-app.use(express.static('./dist'));
-app.use(function (req, res, next) {
-  res.sendfile('./dist/index.html'); //路径根据自己文件配置
-});
-var server = http.createServer(app);
+// var app = express();
+
+//https server
+// app.use(express.static('./dist'));
+// app.use(function (req, res, next) {
+//   res.sendfile('./dist/index.html'); //路径根据自己文件配置
+// });
+var server = https.createServer(credentials);
 //socket server
 let io = require('socket.io')(server, { allowEIO3: true });
 
-//自定义命令空间  nginx代理 /mediaServerWsUrl { http://xxxx:18080/socket.io/ }
+//自定义命令空间  nginx代理 /mediaServerWsUrl { https://xxxx:18080/socket.io/ }
 // io = io.of('mediaServerWsUrl')
 
 server.listen(18080, async () => {
-  console.log('服务器启动成功 http://localhost:18080/');
+  console.log('服务器启动成功 https://localhost:18080/');
 });
 
 io.on('connection', async (socket) => {
