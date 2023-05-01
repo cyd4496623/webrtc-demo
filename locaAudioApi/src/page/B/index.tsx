@@ -163,7 +163,7 @@ const Callee = () => {
         <video
           ref={localVideoRef}
           autoPlay
-          // muted
+          muted
           style={{ width: '30%', height: 'auto' }}
         />
 
