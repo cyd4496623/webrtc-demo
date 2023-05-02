@@ -4,6 +4,7 @@ import { Socket } from 'socket.io-client';
 import { config, roomId } from '../../constant/p2p';
 import { createSocket } from '../../core/Socket';
 import { getLocalUserMedia } from '../../utils';
+import 'webrtc-adapter';
 
 const Caller = () => {
   const userId = 'A';

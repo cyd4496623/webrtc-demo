@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import 'webrtc-adapter';
 import PTP from '../App';
 import PTP2 from '../App';
 import Caller from '../page/caller';
@@ -9,10 +10,21 @@ import Back from '../page/imaginaryBck';
 import A from '../page/A';
 import B from '../page/B';
 import Home from '../page/Home';
+import WebAipPage from '../page/WebApi';
+import DemoA from '../page/Demo-A';
+import DemoB from '../page/Demo-B';
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Home />,
+  },
+  {
+    path: '/demo-a',
+    element: <DemoA />,
+  },
+  {
+    path: '/demo-b',
+    element: <DemoB />,
   },
   {
     path: '/ptp1',
@@ -45,6 +57,10 @@ const router = createBrowserRouter([
   {
     path: '/back',
     element: <Back />,
+  },
+  {
+    path: '/api',
+    element: <WebAipPage />,
   },
 ]);
 
