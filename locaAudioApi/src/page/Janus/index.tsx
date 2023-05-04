@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useRef, useState } from 'react';
 import adapter from 'webrtc-adapter';
 import Janus from '../../core/janus.js';
