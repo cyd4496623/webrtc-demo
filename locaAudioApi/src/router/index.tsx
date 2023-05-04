@@ -13,6 +13,7 @@ import Home from '../page/Home';
 import WebAipPage from '../page/WebApi';
 import DemoA from '../page/Demo-A';
 import DemoB from '../page/Demo-B';
+import JanusTest from '../page/Janus';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
   {
     path: '/demo-b',
     element: <DemoB />,
+  },
+  {
+    path: '/janus',
+    element: <JanusTest />,
   },
   {
     path: '/ptp1',
