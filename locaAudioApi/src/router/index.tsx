@@ -28,7 +28,7 @@ const router = createBrowserRouter([
     element: <DemoB />,
   },
   {
-    path: '/janus-demo',
+    path: '/room',
     element: <JanusTest />,
   },
   {
