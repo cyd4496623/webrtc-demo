@@ -15,7 +15,8 @@ export const config = {
     // },
     {
       urls: 'turn:111.230.110.43:3478',
-      username: 'cyd-demo',
+      username: 'cyd',
+      credential: '123321',
     },
   ],
 };
