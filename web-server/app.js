@@ -4,8 +4,8 @@ const fs = require('fs');
 const https = require('https');
 // var fs = require('fs');
 // var express = require('express');
-const privateKey = fs.readFileSync('/etc/nginx/ssl/nginx.key', 'utf8');
-const certificate = fs.readFileSync('/etc/nginx/ssl/nginx.crt', 'utf8');
+const privateKey = fs.readFileSync('/etc/nginx/ssl/selfsigned.key', 'utf8');
+const certificate = fs.readFileSync('/etc/nginx/ssl/selfsigned.crt', 'utf8');
 
 const credentials = { key: privateKey, cert: certificate };
 
