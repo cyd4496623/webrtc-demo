@@ -36,8 +36,8 @@ export default function JanusTest() {
     console.log('opaqueId', opaqueId);
     // 注册：
     const janus = new Janus({
-      server: 'https://8.134.67.109/janus',
-      apisecret: 'cydSecret',
+      server: 'https://111.230.110.43/janus',
+      apisecret: 'sujanxxusrocks',
       media: {
         video: {
           width: 100, // 限制视频宽度
