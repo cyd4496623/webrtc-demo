@@ -37,18 +37,18 @@ export default function JanusTest() {
     // 注册：
     const janus = new Janus({
       server: 'https://111.230.110.43/janus',
-      apisecret: 'sujanxxusrocks',
-      media: {
-        video: {
-          width: 100, // 限制视频宽度
-          height: 100, // 限制视频高度
-          frameRate: { max: 5 }, // 限制帧率
-        },
-        audio: true,
-      },
-      iceServers: config.iceServers,
-      bundlePolicy: 'max-bundle', // 可选项：设置 WebRTC 连接的 Bundle 策略
-      rtcpMuxPolicy: 'require', // 可选项：设置 RTCP Mux 策略
+      apisecret: 'cydSecret',
+      // media: {
+      //   video: {
+      //     width: 100, // 限制视频宽度
+      //     height: 100, // 限制视频高度
+      //     frameRate: { max: 5 }, // 限制帧率
+      //   },
+      //   audio: true,
+      // },
+      // iceServers: config.iceServers,
+      // bundlePolicy: 'max-bundle', // 可选项：设置 WebRTC 连接的 Bundle 策略
+      // rtcpMuxPolicy: 'require', // 可选项：设置 RTCP Mux 策略
       success: function () {
         Janus.log('初始化成功');
         initPlugin(janus);
