@@ -11,6 +11,7 @@
   "dependencies": {
     "@mediapipe/selfie_segmentation": "^0.1.1675465747",
     "antd": "^5.4.2",
+    "axios": "^1.4.0",
     "danmaku": "^2.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

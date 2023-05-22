@@ -14,6 +14,8 @@ import WebAipPage from '../page/WebApi';
 import DemoA from '../page/Demo-A';
 import DemoB from '../page/Demo-B';
 import JanusTest from '../page/Janus';
+import SRSPage from '../page/SRS';
+import PullPage from '../page/SRS/Pull';
 const router = createBrowserRouter([
   {
     path: '/',
@@ -22,6 +24,14 @@ const router = createBrowserRouter([
   {
     path: '/demo-a',
     element: <DemoA />,
+  },
+  {
+    path: '/srs',
+    element: <SRSPage />,
+  },
+  {
+    path: '/pull',
+    element: <PullPage />,
   },
   {
     path: '/demo-b',
