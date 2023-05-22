@@ -1,4 +1,4 @@
-import { Button, Input } from 'antd';
+import { Button, Input, message } from 'antd';
 import axios from 'axios';
 import { useRef, useState } from 'react';
 
@@ -10,24 +10,26 @@ export default function PullPage() {
   const localRtcPc = useRef<RTCPeerConnection>();
 
   const handleClick = async () => {
+    if (!roomId) {
+      message.error('房间号不能为空');
+      return;
+    }
     const pc = new RTCPeerConnection();
     localRtcPc.current = pc;
     pc.addTransceiver('audio', { direction: 'recvonly' });
     pc.addTransceiver('video', { direction: 'recvonly' });
-    pc.ontrack = function (e) {
-      setDomVideoTrick(e.track);
-    };
+    onPcEvent(pc);
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     let data = {
-      api: 'http://111.230.110.43:1985/' + 'rtc/v1/play/',
-      streamurl: 'webrtc://111.230.110.43:8085/live/' + roomId,
+      api: 'https://111.230.110.43/' + 'rtc/v1/play/',
+      streamurl: 'webrtc://111.230.110.43/live/' + roomId,
       sdp: offer.sdp,
     };
 
     axios
-      .post('http://111.230.110.43:1985/' + 'rtc/v1/play/', data)
+      .post('https://111.230.110.43/' + 'rtc/v1/play/', data)
       .then(async (res: any) => {
         res = res.data;
         console.log(res);
@@ -40,6 +42,26 @@ export default function PullPage() {
       .catch((err) => {
         console.error('SRS 拉流异常', err);
       });
+  };
+
+  const onPcEvent = (pc: RTCPeerConnection) => {
+    pc.ontrack = function (e) {
+      setDomVideoTrick(e.track);
+    };
+
+    // pc.ondatachannel = function (ev) {
+    //   console.log('房间号' + roomId + ' 数据通道创建成功');
+    //   ev.channel.onopen = function () {
+    //     console.log('房间号' + roomId + ' 数据通道打开');
+    //   };
+    //   ev.channel.onmessage = function (data) {
+    //     console.log('房间号' + roomId + ' 数据通道消息', data.data);
+    //     // 弹幕上屏幕
+    //   };
+    //   ev.channel.onclose = function () {
+    //     console.log('房间号' + roomId + ' 数据通道关闭');
+    //   };
+    // };
   };
 
   const setDomVideoTrick = (trick: any) => {

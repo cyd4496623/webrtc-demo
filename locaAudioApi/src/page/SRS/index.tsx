@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createSocket } from '../../core/Socket';
 import { Socket } from 'socket.io-client';
-import { Button, message } from 'antd';
+import { Button, Input, message } from 'antd';
 import { getLocalUserMedia } from '../../utils';
 import axios from 'axios';
 
@@ -9,7 +9,7 @@ const userId = 'cyd6666';
 const roomId = '1111';
 
 export default function SRSPage() {
-  const [streamId] = useState('cyd1');
+  const [streamId, setStreamId] = useState('');
   const [scanUrlFlv, setScanUrlFlv] = useState('');
   const [scanUrlHls, setScanUrlHls] = useState('');
   const socket = useRef<Socket>();
@@ -103,12 +103,12 @@ export default function SRSPage() {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     const data = {
-      api: 'http://111.230.110.43:1985/rtc/v1/publish/',
-      streamurl: 'webrtc://111.230.110.43:8085/live/' + streamId,
+      api: 'https://111.230.110.43/rtc/v1/publish/',
+      streamurl: 'webrtc://111.230.110.43/live/' + streamId,
       sdp: offer.sdp,
     };
     axios
-      .post('http://111.230.110.43:1985/rtc/v1/publish/', data)
+      .post('https://111.230.110.43/rtc/v1/publish/', data)
       .then(async (res: any) => {
         res = res.data;
         console.log(res);
@@ -117,10 +117,8 @@ export default function SRSPage() {
             new RTCSessionDescription({ type: 'answer', sdp: res.sdp })
           );
           //按照给是组装flv和hls点播地址 （SRS官网指定格式）
-          setScanUrlFlv('http://111.230.110.43:8085/live/' + streamId + '.flv');
-          setScanUrlHls(
-            'http://111.230.110.43:8085/live/' + streamId + '.m3u8'
-          );
+          setScanUrlFlv('https://111.230.110.43/live/' + streamId + '.flv');
+          setScanUrlHls('https://111.230.110.43/live/' + streamId + '.m3u8');
           //推流成功后直接webrtc拉流预览 如果拉流这个步骤还没学的话等学完下节课再看这里
           // that.preLive()
         } else {
@@ -134,6 +132,10 @@ export default function SRSPage() {
   };
 
   const handleOpen = async () => {
+    if (!streamId) {
+      message.error('房间号不能为空');
+      return;
+    }
     // 开启摄像头
     const localStream = await getLocalUserMedia({
       audio: true,
@@ -146,13 +148,21 @@ export default function SRSPage() {
 
   return (
     <div>
+      <div>
+        <Input
+          onChange={(e) => setStreamId(e.target.value)}
+          value={streamId}
+          placeholder="请输入房间号"
+        />
+
+        <Button onClick={handleOpen}> 开启直播</Button>
+      </div>
       <video ref={localVideoRef} controls width="700px" height="450px" />
       <div>
         <span>当前流ID {streamId}</span>
         <span>FLV地址： {scanUrlFlv}</span>
         <span>HLS地址： {scanUrlHls}</span>
       </div>
-      <Button onClick={handleOpen}> 打开摄像头</Button>
     </div>
   );
 }
